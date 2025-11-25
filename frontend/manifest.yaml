@@ -33,7 +33,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: gumma4545/backend:v1.0
+        image: gumma4545/frontend:v1.0
         # envFrom:
         # - configMapRef:
         #     name: frontend
