@@ -26,5 +26,18 @@ spec:
       containers:
       - name: nginx
         image: gumma4545/mysql:v1.0
-        # ports:
-        # - containerPort: 80
+        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  selector:
+    component: mysql
+    project: expense 
+    tier: db
+  ports:
+  - protocol: TCP
+    port: 3306 # service-port
+    targetPort: 3306  # target-port
