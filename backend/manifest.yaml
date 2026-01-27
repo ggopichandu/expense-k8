@@ -4,7 +4,6 @@ metadata:
   name: backend
   namespace: expense
 data:
-  #DB_HOST: mysql
   DB_HOST: db-dev.gopichand.online
 ---
 apiVersion: apps/v1
@@ -12,61 +11,63 @@ kind: Deployment
 metadata:
   name: backend
   namespace: expense
-  # these labels are deployments related lables
   labels:
     component: backend
-    project: expense 
+    project: expense
     tier: app
 spec:
   replicas: 2
   selector:
     matchLabels:
       component: backend
-      project: expense 
+      project: expense
       tier: app
-      # pod definition
   template:
     metadata:
       labels:
         component: backend
-        project: expense 
+        project: expense
         tier: app
     spec:
-        # Init container
       initContainers:
-      - name: init-myservice
-        image: busybox:1.28
-        command: ['sh', '-c', "until nslookup db-dev.gopichand.online; do echo waiting for myservice; sleep 2; done"]
+        - name: init-myservice
+          image: busybox:1.28
+          command:
+            - sh
+            - -c
+            - until nslookup db-dev.gopichand.online; do echo waiting for myservice; sleep 2; done
+
       containers:
-      - name: backend
-        image: gumma4545/backend:v1.0
-        resources:
-          requests:
-            cpu: "100m"
-            memory: "128Mi"
-          limits:
-            cpu: "150m"
-            memory: "256Mi"
-        # liveness Probe
-      livenessProbe:
-        httpGet:
-          path: /health
-          port: 8080
-        failureThreshold: 2
-        periodSeconds: 5
-        initialDelaySeconds: 30
-        # readiness Probe
-      readinessProbe:
-        httpGet:
-          path: /health
-          port: 8080
-        failureThreshold: 2
-        periodSeconds: 5
-        initialDelaySeconds: 30  
-        envFrom:
-        - configMapRef:
-            name: backend
-        
+        - name: backend
+          image: gumma4545/backend:v1.0
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "150m"
+              memory: "256Mi"
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            failureThreshold: 2
+            periodSeconds: 5
+            initialDelaySeconds: 30
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            failureThreshold: 2
+            periodSeconds: 5
+            initialDelaySeconds: 30
+
+          envFrom:
+            - configMapRef:
+                name: backend
 ---
 apiVersion: v1
 kind: Service
@@ -76,9 +77,9 @@ metadata:
 spec:
   selector:
     component: backend
-    project: expense 
+    project: expense
     tier: app
   ports:
-  - protocol: TCP
-    port: 8080 # service-port
-    targetPort: 8080  # target-port
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
